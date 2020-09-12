@@ -1,7 +1,9 @@
 package guru.springframework.restfulwebservice.bootstrap;
 
 import guru.springframework.restfulwebservice.domain.Category;
+import guru.springframework.restfulwebservice.domain.Customer;
 import guru.springframework.restfulwebservice.repositories.CategoryRepository;
+import guru.springframework.restfulwebservice.repositories.CustomerRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -12,9 +14,11 @@ import org.springframework.stereotype.Component;
 public class Bootstrap implements CommandLineRunner{
 
     private CategoryRepository categoryRepository;
+    private CustomerRepository customerRepository;
 
-    public Bootstrap(CategoryRepository categoryRepository) {
+    public Bootstrap(CategoryRepository categoryRepository, CustomerRepository customerRepository) {
         this.categoryRepository = categoryRepository;
+        this.customerRepository = customerRepository;
     }
 
     @Override
@@ -41,7 +45,30 @@ public class Bootstrap implements CommandLineRunner{
         categoryRepository.save(nuts);
 
 
-        System.out.println("Data Loaded = " + categoryRepository.count() );
+        System.out.println("Data Loaded Category= " + categoryRepository.count() );
 
+        //loading Customers
+
+        Customer brandon = Customer.builder()
+                .firstName("Brandon")
+                .lastName("Moore")
+                .build();
+
+        Customer nevada = Customer.builder()
+                .firstName("Nevada")
+                .lastName("Surname")
+                .build();
+
+        Customer alex = Customer.builder()
+                .firstName("Alex")
+                .lastName("Burchess")
+                .build();
+
+        customerRepository.save(brandon);
+        customerRepository.save(nevada);
+        customerRepository.save(alex);
+
+
+        System.out.println("Data Loaded Customers= " + customerRepository.count() );
     }
 }
