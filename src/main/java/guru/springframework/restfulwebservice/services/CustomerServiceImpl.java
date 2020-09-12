@@ -4,6 +4,7 @@ import guru.springframework.restfulwebservice.api.v1.mapper.CustomerMapper;
 import guru.springframework.restfulwebservice.api.v1.model.CustomerDTO;
 import guru.springframework.restfulwebservice.domain.Customer;
 import guru.springframework.restfulwebservice.repositories.CustomerRepository;
+import org.mapstruct.Mapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,5 +33,37 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerDTO getCustomerById(Long id) {
         Customer customer = customerRepository.findById(id).orElse(null);
         return customerMapper.CustomerToCustomerDTO(customer);
+    }
+
+    @Override
+    public CustomerDTO createNewCustomer(CustomerDTO customerDTO) {
+        return saveAndReturnDTO(customerMapper.CustomerDTOToCustomer(customerDTO));
+    }
+
+    @Override
+    public CustomerDTO saveCustomerByDTO(Long id, CustomerDTO customerDTO) {
+        Customer customer = customerMapper.CustomerDTOToCustomer(customerDTO);
+        customer.setId(id);
+        return saveAndReturnDTO(customer);
+    }
+
+    @Override
+    public CustomerDTO patchCustomer(Long id, CustomerDTO customerDTO) {
+            return customerRepository.findById(id).map(customer -> {
+                if (customerDTO.getFirstName() != null) {
+                    customer.setFirstName(customerDTO.getFirstName());
+                }
+
+                if (customerDTO.getLastName() != null) {
+                    customer.setLastName(customerDTO.getLastName());
+                }
+                return customerMapper.CustomerToCustomerDTO(customer);
+            }).orElseThrow(RuntimeException::new);
+    }
+
+
+    private CustomerDTO saveAndReturnDTO(Customer customer){
+        Customer savedCustomer = customerRepository.save(customer);
+        return customerMapper.CustomerToCustomerDTO(savedCustomer);
     }
 }

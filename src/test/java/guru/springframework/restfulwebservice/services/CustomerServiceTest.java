@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
@@ -76,5 +77,53 @@ class CustomerServiceTest {
         assertEquals(ID, customerDTO.getId());
         assertEquals(BRANDON, customerDTO.getFirstName());
         assertEquals(MOORE, customerDTO.getLastName());
+    }
+
+    @Test
+    void testCreateNewCustomer() throws Exception {
+        CustomerDTO customerDTO = CustomerDTO.builder()
+                .firstName("Jimmy")
+                .lastName("Boi")
+                .build();
+
+        Customer savedCustomer = Customer.builder()
+                .id(ID)
+                .firstName(customerDTO.getFirstName())
+                .lastName(customerDTO.getLastName())
+                .build();
+
+        //when
+        when(customerRepository.save(any(Customer.class))).thenReturn(savedCustomer);
+
+        CustomerDTO savedCustomerDTO = customerService.createNewCustomer(customerDTO);
+
+        assertEquals(savedCustomerDTO.getId(),ID);
+        assertEquals(savedCustomerDTO.getFirstName(), "Jimmy");
+        assertEquals(savedCustomerDTO.getLastName(),"Boi");
+    }
+
+    @Test
+    void testSaveCustomer() throws Exception{
+        CustomerDTO customerDTO = CustomerDTO.builder()
+                .id(ID)
+                .firstName(BRANDON)
+                .lastName(MOORE)
+                .build();
+
+        Customer savedCustomer = Customer.builder()
+                .id(customerDTO.getId())
+                .firstName(customerDTO.getFirstName())
+                .lastName(customerDTO.getLastName())
+                .build();
+
+        when(customerRepository.save(any(Customer.class))).thenReturn(savedCustomer);
+
+        CustomerDTO savedDTO = customerService.saveCustomerByDTO(ID,customerDTO);
+
+        assertEquals(customerDTO.getFirstName(),savedDTO.getFirstName());
+
+
+
+
     }
 }
