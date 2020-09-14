@@ -6,6 +6,7 @@ import guru.springframework.restfulwebservice.bootstrap.Bootstrap;
 import guru.springframework.restfulwebservice.domain.Customer;
 import guru.springframework.restfulwebservice.repositories.CategoryRepository;
 import guru.springframework.restfulwebservice.repositories.CustomerRepository;
+import guru.springframework.restfulwebservice.repositories.VendorRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,13 +30,16 @@ public class CustomerServiceImplIT {
     @Autowired
     CategoryRepository categoryRepository;
 
+    @Autowired
+    VendorRepository vendorRepository;
+
     CustomerService customerService;
 
     @BeforeEach
     void setUp() throws Exception{
         System.out.println("Loading Data to Database...");
 
-        Bootstrap bootstrap = new Bootstrap(categoryRepository,customerRepository);
+        Bootstrap bootstrap = new Bootstrap(categoryRepository,customerRepository, vendorRepository);
         bootstrap.run();
 
         System.out.println("Finished Loading Data.");
