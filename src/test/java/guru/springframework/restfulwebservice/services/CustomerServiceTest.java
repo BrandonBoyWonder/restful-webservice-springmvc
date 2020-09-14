@@ -17,7 +17,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class CustomerServiceTest {
 
@@ -103,6 +103,15 @@ class CustomerServiceTest {
     }
 
     @Test
+    void deleteById() {
+
+        Long id = 1L;
+
+        customerRepository.deleteById(id);
+        verify(customerRepository,times(1)).deleteById(id);
+    }
+
+    @Test
     void testSaveCustomer() throws Exception{
         CustomerDTO customerDTO = CustomerDTO.builder()
                 .id(ID)
@@ -125,5 +134,7 @@ class CustomerServiceTest {
 
 
 
+        
+        
     }
 }

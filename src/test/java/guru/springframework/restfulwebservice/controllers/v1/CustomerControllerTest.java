@@ -1,7 +1,9 @@
 package guru.springframework.restfulwebservice.controllers.v1;
 
 import guru.springframework.restfulwebservice.api.v1.model.CustomerDTO;
+import guru.springframework.restfulwebservice.controllers.RestResponseEntityExceptionHandler;
 import guru.springframework.restfulwebservice.domain.Customer;
+import guru.springframework.restfulwebservice.exceptions.ResourceNotFoundException;
 import guru.springframework.restfulwebservice.services.CustomerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,7 +22,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -42,7 +44,9 @@ class CustomerControllerTest extends AbstractRestControllerTest{
     void setUp() {
         MockitoAnnotations.initMocks(this);
 
-        mockMvc = MockMvcBuilders.standaloneSetup(customerController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(customerController)
+                .setControllerAdvice(new RestResponseEntityExceptionHandler())
+                .build();
     }
 
     @Test
@@ -130,5 +134,46 @@ class CustomerControllerTest extends AbstractRestControllerTest{
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstName", equalTo(BRANDON)))
                 .andExpect(jsonPath("$.lastName", equalTo(MOORE)));
+    }
+
+    @Test
+    void testPatchCustomer() throws Exception{
+        CustomerDTO customerDTO1 = CustomerDTO.builder()
+                .firstName(BRANDON)
+                .lastName(MOORE)
+                .build();
+
+        CustomerDTO customerDTOReturned = CustomerDTO.builder()
+                .firstName(customerDTO1.getFirstName())
+                .lastName(customerDTO1.getLastName())
+                .build();
+
+        when(customerService.patchCustomer(anyLong(),any(CustomerDTO.class))).thenReturn(customerDTOReturned);
+
+        mockMvc.perform(patch("/api/v1/customers/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(customerDTO1)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.firstName", equalTo(BRANDON)))
+                .andExpect(jsonPath("$.lastName", equalTo(MOORE)));
+    }
+
+    @Test
+    void testDeleteCustomer() throws Exception {
+
+        mockMvc.perform(delete("/api/v1/customers/1")
+        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(customerService).deleteCustomerById(1L);
+    }
+
+    @Test
+    void testNotFoundException() throws Exception{
+        when(customerService.getCustomerById(anyLong())).thenThrow(ResourceNotFoundException.class);
+
+        mockMvc.perform(get("/api/v1/customers/222")
+        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 }
